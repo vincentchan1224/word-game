@@ -1,0 +1,61 @@
+{
+  "Animals": [
+    "Elephant",
+    "Giraffe",
+    "Honey Badger",
+    "Penguin",
+    "Tiger",
+    "Kangaroo",
+    "Platypus",
+    "Chameleon",
+    "Panda",
+    "Koala"
+  ],
+  "Movies": [
+    "Inception",
+    "Titanic",
+    "Toy Story",
+    "The Matrix",
+    "Joker",
+    "Avatar",
+    "Star Wars",
+    "Gladiator",
+    "Frozen",
+    "Batman"
+  ],
+  "Food": [
+    "Pizza",
+    "Sushi",
+    "Hamburger",
+    "Taco",
+    "Croissant",
+    "Dim Sum",
+    "Spaghetti",
+    "Pancake",
+    "Ice Cream",
+    "Ramen"
+  ],
+  "Sports": [
+    "Basketball",
+    "Tennis",
+    "Soccer",
+    "Swimming",
+    "Fencing",
+    "Golf",
+    "Archery",
+    "Baseball",
+    "Cricket",
+    "Boxing"
+  ],
+  "Objects": [
+    "Telescope",
+    "Microwave",
+    "Backpack",
+    "Sunglasses",
+    "Umbrella",
+    "Keyboard",
+    "Hammer",
+    "Flashlight",
+    "Compass"
+  ]
+}
