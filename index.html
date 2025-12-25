@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Rush Game</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            text-align: center;
+            background: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        #word-display {
+            font-size: 3rem;
+            margin: 40px 0;
+            min-height: 100px;
+            color: #007bff;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .btn-bingo {
+            background: #28a745;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-pass {
+            background: #6c757d;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-start {
+            background: #007bff;
+            color: white;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            opacity: 0.9;
+            transform: scale(0.98);
+        }
+
+        input,
+        select {
+            padding: 10px;
+            width: 100%;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .setup-screen {
+            display: block;
+        }
+
+        .game-screen {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div id="setup-screen" class="setup-screen">
+            <h2>Game Setup</h2>
+            <label>Category Name:</label>
+            <input type="text" id="category-name" placeholder="e.g. Animals">
+            <label>Words (comma separated):</label>
+            <textarea id="word-list" rows="5" style="width:100%; border-radius:5px; border:1px solid #ddd;"
+                placeholder="lion, tiger, bear, elephant..."></textarea>
+            <label>Game Time (seconds):</label>
+            <input type="number" id="game-duration" value="60">
+            <button class="btn-start" onclick="startGame()">Start Game</button>
+        </div>
+
+        <div id="game-screen" class="game-screen">
+            <div class="stats-bar">
+                <div>Score: <span id="score">0</span></div>
+                <div>Time: <span id="timer">0</span>s</div>
+            </div>
+            <h3 id="display-category">Category</h3>
+            <div id="word-display">READY?</div>
+            <div class="btn-group">
+                <button class="btn-pass" onclick="nextWord(false)">Pass</button>
+                <button class="btn-bingo" onclick="nextWord(true)">Bingo!</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let words = [];
+        let score = 0;
+        let timeLeft = 0;
+        let timerInterval;
+
+        function startGame() {
+            const rawWords = document.getElementById('word-list').value;
+            words = rawWords.split(',').map(w => w.trim()).filter(w => w !== "");
+
+            if (words.length === 0) {
+                alert("Please enter some words!");
+                return;
+            }
+
+            // Shuffle words
+            words.sort(() => Math.random() - 0.5);
+
+            // UI Transition
+            score = 0;
+            timeLeft = parseInt(document.getElementById('game-duration').value);
+            document.getElementById('display-category').innerText = document.getElementById('category-name').value;
+            document.getElementById('score').innerText = score;
+            document.getElementById('timer').innerText = timeLeft;
+
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'block';
+
+            updateWord();
+            startTimer();
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function updateWord() {
+            if (words.length === 0) {
+                endGame();
+                return;
+            }
+            document.getElementById('word-display').innerText = words[0];
+        }
+
+        function nextWord(isBingo) {
+            if (isBingo) {
+                score++;
+                document.getElementById('score').innerText = score;
+            }
+            words.shift(); // Remove the current word
+            updateWord();
+        }
+
+        function endGame() {
+            clearInterval(timerInterval);
+            alert("Game Over! Final Score: " + score);
+            location.reload(); // Reset the game
+        }
+    </script>
+
+</body>
+
+</html>
