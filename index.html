@@ -4,16 +4,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Word Rush Pro</title>
+    <title>大電視</title>
     <style>
         :root {
-            --bg-color: #000000;
-            --card-bg: #1c1c1e;
-            --accent-green: #30d158;
-            --accent-red: #ff453a;
-            --accent-blue: #0a84ff;
-            --text-main: #ffffff;
-            --text-dim: #8e8e93;
+            --bg-color: #2c3e50;
+            --tv-case: #e67e22;
+            /* Classic Orange TV */
+            --tv-screen: #000000;
+            --accent-blue: #3498db;
+            --accent-green: #2ecc71;
+            --accent-red: #e74c3c;
+            --text-white: #ffffff;
         }
 
         * {
@@ -24,9 +25,9 @@
         }
 
         body {
-            font-family: -apple-system, sans-serif;
+            font-family: 'Arial Rounded MT Bold', 'Helvetica', sans-serif;
             background: var(--bg-color);
-            color: var(--text-main);
+            color: white;
             height: 100vh;
             overflow: hidden;
         }
@@ -35,7 +36,7 @@
         #setup-screen {
             position: fixed;
             inset: 0;
-            background: var(--bg-color);
+            background: #34495e;
             z-index: 100;
             display: flex;
             flex-direction: column;
@@ -45,24 +46,23 @@
 
         .category-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             gap: 15px;
             margin: 20px 0;
         }
 
         .cat-card {
-            background: var(--card-bg);
-            padding: 25px;
-            border-radius: 16px;
+            background: #2c3e50;
+            padding: 20px;
+            border-radius: 12px;
             text-align: center;
             cursor: pointer;
-            border: 2px solid transparent;
-            font-weight: 600;
+            border: 3px solid transparent;
         }
 
         .cat-card.selected {
-            border-color: var(--accent-blue);
-            background: #003a75;
+            border-color: var(--tv-case);
+            background: #d35400;
         }
 
         /* Game Screen */
@@ -70,79 +70,178 @@
             display: none;
             height: 100vh;
             flex-direction: column;
+            align-items: center;
         }
 
+        /* Top Bar */
         .stats-bar {
-            height: 10vh;
+            width: 100%;
+            height: 8vh;
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 0 40px;
-            background: #111;
-            font-size: 2rem;
-            font-weight: 800;
+            background: rgba(0, 0, 0, 0.3);
+            font-size: 1.8rem;
         }
 
-        .word-area {
+        /* --- Cartoon TV Container (75% height) --- */
+        .tv-container {
             height: 75vh;
+            width: 90vw;
             display: flex;
             justify-content: center;
             align-items: center;
-            text-align: center;
+            position: relative;
+        }
+
+        /* TV Antenna */
+        .antenna {
+            position: absolute;
+            top: -30px;
+            width: 100px;
+            height: 50px;
+            border-bottom: 5px solid #555;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .antenna::before,
+        .antenna::after {
+            content: '';
+            width: 5px;
+            height: 60px;
+            background: #555;
+            transform-origin: bottom;
+        }
+
+        .antenna::before {
+            transform: rotate(-30deg);
+        }
+
+        .antenna::after {
+            transform: rotate(30deg);
+        }
+
+        /* TV Outer Body */
+        .tv-body {
+            background: var(--tv-case);
+            width: 100%;
+            height: 90%;
+            border-radius: 40px;
+            border: 8px solid #a04000;
+            display: flex;
+            padding: 30px;
+            box-shadow: 0 20px 0 #a04000;
+        }
+
+        /* TV Screen Area */
+        .tv-screen {
+            flex: 4;
+            background: var(--tv-screen);
+            border-radius: 20px;
+            border: 10px solid #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* CRT Effect Overlay */
+        .tv-screen::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 4px, 3px 100%;
+            pointer-events: none;
         }
 
         #word-display {
-            font-size: 14vw;
-            font-weight: 900;
-            color: #FFFFFF;
-            text-transform: uppercase;
+            font-size: 10vw;
+            color: #ffffff;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+            text-align: center;
+            z-index: 2;
         }
 
-        /* Controls */
+        /* TV Side Controls */
+        .tv-side-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            align-items: center;
+            padding-left: 20px;
+        }
+
+        .dial {
+            width: 50px;
+            height: 50px;
+            background: #333;
+            border-radius: 50%;
+            border: 4px dashed #555;
+        }
+
+        .speaker-grill {
+            width: 40px;
+            height: 100px;
+            background: repeating-linear-gradient(#333, #333 5px, transparent 5px, transparent 10px);
+        }
+
+        /* Controls Area (15% height) */
         .controls {
-            height: 15vh;
+            width: 100%;
+            height: 17vh;
             display: flex;
         }
 
         .btn-game {
             border: none;
             font-size: 2.5rem;
-            font-weight: 900;
+            font-weight: bold;
             cursor: pointer;
             color: white;
+            text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
         }
 
         .btn-pass {
             background: var(--accent-red);
             width: 35%;
+            border-top: 5px solid #c0392b;
         }
 
         .btn-bingo {
             background: var(--accent-green);
             width: 65%;
+            border-top: 5px solid #27ae60;
         }
 
+        /* UI Inputs */
         .btn-ui {
-            padding: 20px;
-            border-radius: 14px;
+            padding: 15px;
+            border-radius: 10px;
             background: var(--accent-blue);
             color: white;
             border: none;
-            font-size: 1.3rem;
-            font-weight: bold;
-            width: 100%;
+            font-size: 1.2rem;
             cursor: pointer;
-            margin-top: 10px;
+            width: 100%;
+            margin: 10px 0;
         }
 
         textarea {
             width: 100%;
-            padding: 20px;
-            border-radius: 12px;
-            background: var(--card-bg);
+            padding: 10px;
+            background: #2c3e50;
             color: white;
-            border: 1px solid #333;
-            margin: 10px 0;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #555;
             display: none;
         }
     </style>
@@ -151,32 +250,43 @@
 <body>
 
     <div id="setup-screen">
-        <h1>Word Rush</h1>
-        <p style="color: var(--text-dim)">Select categories from JSON or add custom words:</p>
-        <div class="category-grid" id="category-menu">Loading categories...</div>
+        <h1 style="text-shadow: 3px 3px 0 #d35400;">TV WORD GAME</h1>
+        <p>Pick your channels (Categories):</p>
+        <div class="category-grid" id="category-menu">Loading...</div>
 
-        <button class="btn-ui" style="background: #333"
-            onclick="document.getElementById('custom-words').style.display='block'">+ Add Custom Words</button>
-        <textarea id="custom-words" rows="3" placeholder="word1, word2, word3"></textarea>
+        <button class="btn-ui" onclick="document.getElementById('custom-words').style.display='block'">+ Custom
+            Words</button>
+        <textarea id="custom-words" rows="3" placeholder="apple, banana, cherry"></textarea>
 
         <div style="margin: 20px 0;">
-            <label>Timer (sec): </label>
-            <input type="number" id="game-time" value="60"
-                style="padding: 10px; border-radius: 8px; border: none; width: 80px;">
+            <label>Timer: </label>
+            <input type="number" id="game-time" value="60" style="padding: 10px; border-radius: 8px; width: 80px;">
         </div>
 
-        <button class="btn-ui" style="background: var(--accent-green); font-size: 2rem;"
-            onclick="startGame()">START</button>
+        <button class="btn-ui" style="background: var(--accent-green); font-size: 1.8rem;" onclick="startGame()">START
+            BROADCAST</button>
     </div>
 
     <div id="game-screen">
         <div class="stats-bar">
-            <div>SCORE: <span id="score" style="color: var(--accent-green)">0</span></div>
+            <div>SCORE: <span id="score">0</span></div>
             <div id="timer">60</div>
         </div>
-        <div class="word-area">
-            <div id="word-display">READY</div>
+
+        <div class="tv-container">
+            <div class="antenna"></div>
+            <div class="tv-body">
+                <div class="tv-screen">
+                    <div id="word-display">READY</div>
+                </div>
+                <div class="tv-side-panel">
+                    <div class="dial"></div>
+                    <div class="dial"></div>
+                    <div class="speaker-grill"></div>
+                </div>
+            </div>
         </div>
+
         <div class="controls">
             <button class="btn-game btn-pass" onclick="handleAction(false)">PASS</button>
             <button class="btn-game btn-bingo" onclick="handleAction(true)">BINGO</button>
@@ -191,9 +301,8 @@
         let timeLeft = 0;
         let timerId;
 
-        // STEP 1: Load the JSON file
         fetch('data.json')
-            .then(response => response.json())
+            .then(res => res.json())
             .then(data => {
                 gameData = data;
                 const menu = document.getElementById('category-menu');
@@ -208,9 +317,8 @@
                     };
                     menu.appendChild(div);
                 });
-            })
-            .catch(err => {
-                document.getElementById('category-menu').innerText = "Error loading data.json. Ensure file exists!";
+            }).catch(() => {
+                document.getElementById('category-menu').innerText = "Please upload data.json to GitHub.";
             });
 
         function startGame() {
@@ -219,7 +327,7 @@
             const custom = document.getElementById('custom-words').value;
             if (custom) currentDeck = currentDeck.concat(custom.split(',').map(w => w.trim()).filter(w => w));
 
-            if (currentDeck.length === 0) return alert("Select a category!");
+            if (currentDeck.length === 0) return alert("Select a channel!");
 
             currentDeck.sort(() => Math.random() - 0.5);
             score = 0;
@@ -250,7 +358,7 @@
 
         function endGame() {
             clearInterval(timerId);
-            alert("Game Over! Score: " + score);
+            alert("Show's Over! Final Score: " + score);
             location.reload();
         }
     </script>
