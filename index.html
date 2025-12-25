@@ -8,11 +8,10 @@
     <style>
         :root {
             --tv-orange: #ff9f43;
-            --tv-dark-orange: #ee5253;
-            --tv-screen-bg: #1e272e;
-            --btn-bingo: #10ac84;
-            --btn-pass: #ee5253;
-            --text-white: #ffffff;
+            --tv-case-dark: #d35400;
+            --screen-bg: #111111;
+            --btn-bingo: #2ecc71;
+            --btn-pass: #e74c3c;
         }
 
         * {
@@ -23,162 +22,154 @@
         }
 
         body {
-            font-family: 'PingFang HK', 'Microsoft JhengHei', sans-serif;
-            background-color: #2f3542;
-            color: var(--text-white);
+            font-family: 'PingFang HK', 'Heiti TC', sans-serif;
+            background-color: #2c3e50;
+            color: white;
             height: 100vh;
             overflow: hidden;
         }
 
-        /* --- 設定頁面 --- */
+        /* --- 設定介面 --- */
         #setup-screen {
             position: fixed;
             inset: 0;
-            background: #2f3542;
+            background: #2c3e50;
             z-index: 100;
             display: flex;
             flex-direction: column;
-            padding: 30px;
+            padding: 40px;
             overflow-y: auto;
         }
 
         h1 {
-            font-size: 3rem;
+            font-size: 3.5rem;
             text-align: center;
             margin-bottom: 20px;
             color: var(--tv-orange);
-            text-shadow: 2px 2px 0px #000;
+            text-shadow: 3px 3px 0 #000;
         }
 
-        .section-title {
-            font-size: 1.2rem;
-            margin: 15px 0;
-            color: #ced4da;
-            border-left: 5px solid var(--tv-orange);
-            padding-left: 10px;
+        .instructions {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #bdc3c7;
         }
 
         .category-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 12px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 15px;
+            margin-bottom: 40px;
         }
 
         .cat-card {
-            background: #57606f;
-            padding: 20px 10px;
-            border-radius: 15px;
+            background: #34495e;
+            padding: 25px 15px;
+            border-radius: 20px;
             text-align: center;
             cursor: pointer;
-            border: 3px solid transparent;
+            border: 4px solid transparent;
+            font-size: 1.3rem;
             font-weight: bold;
-            transition: 0.2s;
+            transition: all 0.2s;
         }
 
         .cat-card.selected {
             background: var(--tv-orange);
             border-color: #fff;
-            transform: scale(0.95);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
         }
 
-        .setting-row {
+        .config-box {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 20px;
-            margin: 20px 0;
-            font-size: 1.2rem;
-        }
-
-        input[type="number"] {
-            padding: 10px;
-            border-radius: 10px;
-            border: none;
-            width: 80px;
-            font-size: 1.2rem;
-            text-align: center;
         }
 
         .btn-start {
             background: var(--btn-bingo);
             color: white;
             border: none;
-            padding: 25px;
-            border-radius: 20px;
-            font-size: 2rem;
-            font-weight: bold;
+            padding: 30px;
+            border-radius: 25px;
+            font-size: 2.5rem;
+            font-weight: 900;
             cursor: pointer;
-            box-shadow: 0 8px 0 #087f5b;
-            margin-top: 20px;
+            box-shadow: 0 10px 0 #27ae60;
         }
 
         .btn-start:active {
-            transform: translateY(4px);
-            box-shadow: 0 4px 0 #087f5b;
+            transform: translateY(5px);
+            box-shadow: 0 5px 0 #27ae60;
         }
 
-        /* --- 遊戲頁面 --- */
+        /* --- 遊戲介面 --- */
         #game-screen {
             display: none;
             height: 100vh;
             flex-direction: column;
-            align-items: center;
         }
 
-        .top-bar {
-            width: 100%;
+        .stats-bar {
             height: 10vh;
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 0 40px;
-            font-size: 2rem;
+            font-size: 2.2rem;
             font-weight: bold;
-            background: rgba(0, 0, 0, 0.2);
+            background: rgba(0, 0, 0, 0.3);
         }
 
-        /* 卡通電視機框架 (75% 高度) */
-        .tv-frame {
+        /* 卡通電視 (75vh) */
+        .tv-area {
             height: 75vh;
-            width: 95vw;
+            width: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
-            position: relative;
+            padding: 20px;
         }
 
-        .tv-outer {
+        .tv-body {
             background: var(--tv-orange);
             width: 100%;
-            height: 90%;
-            border-radius: 50px;
-            border: 10px solid #d35400;
+            max-width: 1000px;
+            height: 95%;
+            border-radius: 60px;
+            border: 12px solid var(--tv-case-dark);
             display: flex;
-            padding: 25px;
-            box-shadow: 0 15px 0 #a04000;
+            padding: 30px;
+            position: relative;
+            box-shadow: 0 20px 0 var(--tv-case-dark);
         }
 
-        .tv-inner-screen {
+        .tv-screen {
             flex: 5;
-            background: var(--tv-screen-bg);
+            background: var(--screen-bg);
             border-radius: 30px;
-            border: 12px solid #333;
+            border: 15px solid #222;
             display: flex;
             justify-content: center;
             align-items: center;
-            box-shadow: inset 0 0 50px #000;
+            box-shadow: inset 0 0 80px #000;
         }
 
         #word-display {
-            font-size: 12vw;
+            font-size: 10vw;
             font-weight: 900;
             color: #FFFFFF;
             text-align: center;
-            padding: 10px;
-            word-break: break-all;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
         }
 
-        .tv-controls {
+        .tv-knobs {
             flex: 1;
             display: flex;
             flex-direction: column;
@@ -187,30 +178,29 @@
             padding-left: 20px;
         }
 
-        .dial {
-            width: 60px;
-            height: 60px;
-            background: #2f3542;
+        .knob {
+            width: 70px;
+            height: 70px;
+            background: #333;
             border-radius: 50%;
-            border: 5px dashed #747d8c;
+            border: 6px dashed #555;
         }
 
-        .speaker {
-            width: 45px;
-            height: 120px;
-            background: repeating-linear-gradient(#2f3542, #2f3542 6px, transparent 6px, transparent 12px);
+        .grill {
+            width: 50px;
+            height: 150px;
+            background: repeating-linear-gradient(#333, #333 8px, transparent 8px, transparent 16px);
         }
 
-        /* 按鈕區 (15% 高度) */
-        .bottom-controls {
-            width: 100%;
+        /* 按鈕區 (15vh) */
+        .controls {
             height: 15vh;
             display: flex;
         }
 
-        .btn-game {
+        .btn-action {
             border: none;
-            font-size: 3rem;
+            font-size: 3.5rem;
             font-weight: 900;
             color: white;
             cursor: pointer;
@@ -219,17 +209,17 @@
         .btn-pass {
             background: var(--btn-pass);
             width: 35%;
-            border-top: 8px solid #c0392b;
+            border-top: 10px solid #c0392b;
         }
 
         .btn-bingo {
             background: var(--btn-bingo);
             width: 65%;
-            border-top: 8px solid #0b8a69;
+            border-top: 10px solid #219150;
         }
 
-        .btn-game:active {
-            opacity: 0.8;
+        .btn-action:active {
+            opacity: 0.7;
         }
     </style>
 </head>
@@ -238,119 +228,137 @@
 
     <div id="setup-screen">
         <h1>📺 大電視</h1>
+        <p class="instructions">請點擊選擇一個或多個分類進行遊戲</p>
 
-        <div class="section-title">選擇分類 (可多選)</div>
-        <div class="category-grid" id="category-menu">讀取數據中...</div>
-
-        <div class="section-title">遊戲設定</div>
-        <div class="setting-row">
-            <span>每局時間 (秒):</span>
-            <input type="number" id="game-time" value="60">
+        <div class="category-grid" id="category-menu">
         </div>
 
-        <button class="btn-start" onclick="startGame()">開始遊戲</button>
+        <div class="config-box">
+            <span style="font-size: 1.5rem;">遊戲時間：</span>
+            <input type="number" id="game-time" value="60"
+                style="font-size: 1.5rem; padding: 10px; width: 100px; border-radius: 10px; border: none; text-align: center;">
+            <span style="font-size: 1.5rem;">秒</span>
+        </div>
+
+        <button class="btn-start" onclick="startGame()">正式開波！</button>
     </div>
 
     <div id="game-screen">
-        <div class="top-bar">
-            <div id="timer">時間: 60</div>
+        <div class="stats-bar">
             <div>分數: <span id="score" style="color:var(--tv-orange)">0</span></div>
+            <div id="timer">60s</div>
         </div>
 
-        <div class="tv-frame">
-            <div class="tv-outer">
-                <div class="tv-inner-screen">
-                    <div id="word-display">準備?</div>
+        <div class="tv-area">
+            <div class="tv-body">
+                <div class="tv-screen">
+                    <div id="word-display">準備</div>
                 </div>
-                <div class="tv-controls">
-                    <div class="dial"></div>
-                    <div class="dial"></div>
-                    <div class="speaker"></div>
+                <div class="tv-knobs">
+                    <div class="knob"></div>
+                    <div class="knob"></div>
+                    <div class="grill"></div>
                 </div>
             </div>
         </div>
 
-        <div class="bottom-controls">
-            <button class="btn-game btn-pass" onclick="handleAction(false)">PASS</button>
-            <button class="btn-game btn-bingo" onclick="handleAction(true)">BINGO</button>
+        <div class="controls">
+            <button class="btn-action btn-pass" onclick="handleAction(false)">PASS</button>
+            <button class="btn-action btn-bingo" onclick="handleAction(true)">BINGO</button>
         </div>
     </div>
 
     <script>
         let gameData = {};
         let selectedCategories = new Set();
-        let currentDeck = [];
+        let gameWords = [];
         let score = 0;
         let timeLeft = 0;
-        let timerId;
+        let timerInterval;
 
-        // 讀取 JSON 檔案
+        // --- 自動讀取 JSON 並建立按鈕 ---
         fetch('data.json')
             .then(res => res.json())
             .then(data => {
                 gameData = data;
                 const menu = document.getElementById('category-menu');
-                menu.innerHTML = ''; // 清空讀取中文字
+                menu.innerHTML = ''; // 清空加載中提示
 
-                Object.keys(gameData).forEach(cat => {
-                    const div = document.createElement('div');
-                    div.className = 'cat-card';
-                    div.innerText = cat;
-                    div.onclick = () => {
-                        div.classList.toggle('selected');
-                        if (selectedCategories.has(cat)) selectedCategories.delete(cat);
-                        else selectedCategories.add(cat);
+                // 獲取 JSON 內所有的分類名稱 (Keys)
+                const categories = Object.keys(gameData);
+
+                categories.forEach(catName => {
+                    const card = document.createElement('div');
+                    card.className = 'cat-card';
+                    card.innerText = catName;
+
+                    // 點擊選取/取消選取邏輯
+                    card.onclick = () => {
+                        if (selectedCategories.has(catName)) {
+                            selectedCategories.delete(catName);
+                            card.classList.remove('selected');
+                        } else {
+                            selectedCategories.add(catName);
+                            card.classList.add('selected');
+                        }
                     };
-                    menu.appendChild(div);
+                    menu.appendChild(card);
                 });
             })
             .catch(err => {
-                document.getElementById('category-menu').innerText = "讀取 JSON 失敗，請檢查檔案名稱是否為 data.json";
+                document.getElementById('category-menu').innerHTML = "<p style='color:red'>錯誤：無法讀取 data.json。請確保檔案已上傳至 GitHub。</p>";
             });
 
         function startGame() {
             if (selectedCategories.size === 0) {
-                alert("請至少選擇一個分類！");
+                alert("請先選擇至少一個分類！");
                 return;
             }
 
-            // 合併所有選擇的分類單字
-            currentDeck = [];
+            // 合併選中分類的所有單字
+            gameWords = [];
             selectedCategories.forEach(cat => {
-                currentDeck = currentDeck.concat(gameData[cat]);
+                gameWords = gameWords.concat(gameData[cat]);
             });
 
-            // 隨機排序
-            currentDeck.sort(() => Math.random() - 0.5);
+            // 洗牌 (隨機排序)
+            gameWords.sort(() => Math.random() - 0.5);
 
-            // 重設狀態
+            // 重設遊戲狀態
             score = 0;
             timeLeft = parseInt(document.getElementById('game-time').value) || 60;
             document.getElementById('score').innerText = score;
-            document.getElementById('timer').innerText = "時間: " + timeLeft;
+            document.getElementById('timer').innerText = timeLeft + "s";
 
-            // 切換畫面
+            // 切換介面
             document.getElementById('setup-screen').style.display = 'none';
             document.getElementById('game-screen').style.display = 'flex';
 
-            nextWord();
+            showNextWord();
             startTimer();
         }
 
         function startTimer() {
-            timerId = setInterval(() => {
+            timerInterval = setInterval(() => {
                 timeLeft--;
-                document.getElementById('timer').innerText = "時間: " + timeLeft;
-                if (timeLeft <= 0) endGame();
+                document.getElementById('timer').innerText = timeLeft + "s";
+
+                if (timeLeft <= 10) {
+                    document.getElementById('timer').style.color = "#e74c3c";
+                }
+
+                if (timeLeft <= 0) {
+                    endGame();
+                }
             }, 1000);
         }
 
-        function nextWord() {
-            if (currentDeck.length === 0) {
+        function showNextWord() {
+            if (gameWords.length === 0) {
                 endGame();
                 return;
             }
-            document.getElementById('word-display').innerText = currentDeck[0];
+            document.getElementById('word-display').innerText = gameWords[0];
         }
 
         function handleAction(isBingo) {
@@ -358,14 +366,14 @@
                 score++;
                 document.getElementById('score').innerText = score;
             }
-            currentDeck.shift(); // 移除已顯示的詞
-            nextWord();
+            gameWords.shift(); // 移除目前的詞
+            showNextWord();
         }
 
         function endGame() {
-            clearInterval(timerId);
-            alert("時間到！\n最終得分: " + score);
-            location.reload(); // 重新回到設定畫面
+            clearInterval(timerInterval);
+            alert("時間到！\n最終分數：" + score);
+            location.reload(); // 重啟應用
         }
     </script>
 </body>
