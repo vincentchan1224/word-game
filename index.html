@@ -4,159 +4,223 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Word Rush iPad</title>
+    <title>Word Rush v2.0</title>
     <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-green: #22c55e;
+            --accent-red: #ef4444;
+            --accent-blue: #3b82f6;
+            --text-main: #f8fafc;
+        }
+
         * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica;
-            margin: 0;
-            padding: 0;
-            background: #111;
-            color: white;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            height: 100vh;
             overflow: hidden;
-            /* Prevents scrolling during game */
+            display: flex;
+            flex-direction: column;
         }
 
-        /* Setup Screen Styling */
-        .setup-screen {
-            padding: 40px;
+        /* Setup Screen Overlay */
+        #setup-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-color);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .setup-card {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 1.5rem;
+            width: 100%;
             max-width: 600px;
-            margin: auto;
-            text-align: left;
-            background: #222;
-            min-height: 100vh;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            margin-bottom: 1.5rem;
+            text-align: center;
+            color: var(--accent-blue);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
         }
 
         input,
         textarea {
             width: 100%;
-            padding: 15px;
-            margin: 10px 0 25px 0;
-            border-radius: 10px;
-            border: none;
-            font-size: 1.1rem;
+            padding: 12px;
+            margin-bottom: 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid #334155;
+            background: #0f172a;
+            color: white;
+            font-size: 1rem;
         }
 
         /* Game Screen Layout */
-        .game-screen {
+        #game-screen {
             display: none;
+            /* Hidden until start */
             height: 100vh;
+            width: 100%;
             flex-direction: column;
         }
 
-        /* Top Bar: Score and Timer (Approx 10% height) */
+        /* 1. Stats Bar (10vh) */
         .stats-bar {
             height: 10vh;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 40px;
-            background: #333;
-            font-size: 2rem;
-            font-weight: bold;
+            padding: 0 5%;
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid #334155;
         }
 
-        /* The Word: 75% of the whole website */
-        #word-display-container {
+        .stat-item {
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+
+        .timer-red {
+            color: var(--accent-red);
+            animation: pulse 1s infinite;
+        }
+
+        /* 2. Word Area (75vh) */
+        .word-area {
             height: 75vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            text-align: center;
+            padding: 20px;
         }
 
         #display-category {
-            font-size: 1.5rem;
-            color: #aaa;
-            margin-bottom: 10px;
+            font-size: 1.2rem;
+            letter-spacing: 0.2rem;
+            color: #94a3b8;
+            margin-bottom: 1rem;
             text-transform: uppercase;
         }
 
         #word-display {
-            font-size: 12vw;
-            /* Scale based on screen width */
+            font-size: clamp(3rem, 15vw, 10rem);
+            /* Responsive font sizing */
             font-weight: 900;
-            padding: 0 20px;
-            word-wrap: break-word;
-            color: #00ff88;
+            text-align: center;
+            line-height: 1;
+            text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
 
-        /* Controls: Approx 15% height */
-        .btn-group {
+        /* 3. Button Area (15vh) */
+        .controls {
             height: 15vh;
             display: flex;
-            gap: 0;
+            width: 100%;
         }
 
-        button {
+        .btn {
             border: none;
-            font-size: 2rem;
-            font-weight: bold;
+            font-size: 1.8rem;
+            font-weight: 800;
             cursor: pointer;
-            transition: 0.1s;
+            transition: transform 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
         }
 
         .btn-pass {
-            background: #ff4444;
+            background: var(--accent-red);
             color: white;
-            flex: 1;
+            width: 35%;
         }
 
         .btn-bingo {
-            background: #00c851;
+            background: var(--accent-green);
             color: white;
-            flex: 2;
+            width: 65%;
         }
 
-        /* Bingo is larger for easier hitting */
-        .btn-start {
-            background: #007bff;
-            color: white;
-            width: 100%;
-            padding: 20px;
-            border-radius: 10px;
-        }
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
 
-        button:active {
-            opacity: 0.7;
+            50% {
+                opacity: 0.5;
+            }
+
+            100% {
+                opacity: 1;
+            }
         }
     </style>
 </head>
 
 <body>
 
-    <div id="setup-screen" class="setup-screen">
-        <h1>Word Game Setup</h1>
-        <label>Category Name</label>
-        <input type="text" id="category-name" placeholder="Movies, Animals, etc.">
+    <div id="setup-screen">
+        <div class="setup-card">
+            <h1>Word Game Setup</h1>
+            <label>Category Name</label>
+            <input type="text" id="category-name" placeholder="e.g., Hollywood Movies">
 
-        <label>Word List (separate with commas)</label>
-        <textarea id="word-list" rows="8" placeholder="Apple, Banana, Orange..."></textarea>
+            <label>Word List (comma separated)</label>
+            <textarea id="word-list" rows="6" placeholder="Star Wars, Jaws, Inception, Toy Story..."></textarea>
 
-        <label>Game Time (seconds)</label>
-        <input type="number" id="game-duration" value="60">
+            <label>Time Limit (seconds)</label>
+            <input type="number" id="game-duration" value="60">
 
-        <button class="btn-start" onclick="startGame()">START GAME</button>
+            <button onclick="startGame()"
+                style="width:100%; padding:15px; border-radius:10px; background:var(--accent-blue); color:white; border:none; font-weight:bold; font-size:1.2rem; cursor:pointer;">
+                LAUNCH GAME
+            </button>
+        </div>
     </div>
 
-    <div id="game-screen" class="game-screen">
+    <div id="game-screen">
         <div class="stats-bar">
-            <div>SCORE: <span id="score" style="color:#00c851">0</span></div>
-            <div id="timer">60s</div>
+            <div class="stat-item">SCORE: <span id="score" style="color:var(--accent-green)">0</span></div>
+            <div class="stat-item" id="timer-display">TIME: <span id="timer">60</span>s</div>
         </div>
 
-        <div id="word-display-container">
+        <div class="word-area">
             <div id="display-category">CATEGORY</div>
-            <div id="word-display">READY?</div>
+            <div id="word-display">START!</div>
         </div>
 
-        <div class="btn-group">
-            <button class="btn-pass" onclick="nextWord(false)">PASS</button>
-            <button class="btn-bingo" onclick="nextWord(true)">BINGO</button>
+        <div class="controls">
+            <button class="btn btn-pass" onclick="nextWord(false)">PASS</button>
+            <button class="btn btn-bingo" onclick="nextWord(true)">BINGO</button>
         </div>
     </div>
 
@@ -167,23 +231,25 @@
         let timerInterval;
 
         function startGame() {
-            const rawWords = document.getElementById('word-list').value;
-            words = rawWords.split(',').map(w => w.trim()).filter(w => w !== "");
+            const rawInput = document.getElementById('word-list').value;
+            words = rawInput.split(',').map(w => w.trim()).filter(w => w !== "");
 
             if (words.length === 0) {
-                alert("Please enter some words first!");
+                alert("Enter at least one word!");
                 return;
             }
 
-            // Randomize order
+            // Randomize
             words.sort(() => Math.random() - 0.5);
 
+            // State Init
             score = 0;
             timeLeft = parseInt(document.getElementById('game-duration').value);
 
-            document.getElementById('display-category').innerText = document.getElementById('category-name').value || "GAME";
+            // UI Update
             document.getElementById('score').innerText = score;
-            document.getElementById('timer').innerText = timeLeft + "s";
+            document.getElementById('timer').innerText = timeLeft;
+            document.getElementById('display-category').innerText = document.getElementById('category-name').value || "General";
 
             document.getElementById('setup-screen').style.display = 'none';
             document.getElementById('game-screen').style.display = 'flex';
@@ -195,7 +261,13 @@
         function startTimer() {
             timerInterval = setInterval(() => {
                 timeLeft--;
-                document.getElementById('timer').innerText = timeLeft + "s";
+                document.getElementById('timer').innerText = timeLeft;
+
+                // Visual warning when time is low
+                if (timeLeft <= 10) {
+                    document.getElementById('timer-display').classList.add('timer-red');
+                }
+
                 if (timeLeft <= 0) {
                     endGame();
                 }
@@ -221,7 +293,7 @@
 
         function endGame() {
             clearInterval(timerInterval);
-            alert("Time's Up! Total Score: " + score);
+            alert("GAME OVER!\nFinal Score: " + score);
             location.reload();
         }
     </script>
