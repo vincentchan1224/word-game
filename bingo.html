@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>互動 Bingo 抽獎系統</title>
+    <style>
+        :root {
+            --primary-color: #ff4757;
+            --secondary-color: #2f3542;
+            --accent-color: #ffa502;
+            --bg-color: #f1f2f6;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 左側：玩法說明 */
+        #sidebar {
+            width: 250px;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        #sidebar h2 {
+            color: var(--accent-color);
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 10px;
+        }
+
+        .rule-item {
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* 中間：主展示區 */
+        #main-display {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            align-items: center;
+        }
+
+        #current-ball {
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle at 30% 30%, #ff6b81, #ff4757);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 80px;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+            border: 5px solid white;
+            transition: transform 0.3s;
+        }
+
+        #history-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 10px;
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            overflow-y: auto;
+        }
+
+        .history-ball {
+            width: 40px;
+            height: 40px;
+            background: #dfe4ea;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: #747d8c;
+        }
+
+        .history-ball.active {
+            background: var(--accent-color);
+            color: white;
+            animation: pop 0.3s ease-out;
+        }
+
+        /* 右側：設定面板 */
+        #settings-panel {
+            width: 300px;
+            background: white;
+            padding: 20px;
+            border-left: 1px solid #ddd;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        button:disabled {
+            background: #ccc;
+        }
+
+        @keyframes pop {
+            0% {
+                transform: scale(0.5);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="sidebar">
+        <h2>如何遊玩</h2>
+        <div class="rule-item"><b>1. 領取紙張：</b>每位玩家持有一張 5x5 的 Bingo 數字卡。</div>
+        <div class="rule-item"><b>2. 標記號碼：</b>當螢幕出現球號且與你卡片上的數字相同時，請將其標記。</div>
+        <div class="rule-item"><b>3. 連線獲勝：</b>最快在卡片上達成橫線、直線或對角線（共 5 格）連線的玩家，請大喊「BINGO！」</div>
+        <div class="rule-item"><b>4. 檢查：</b>我們會核對歷史記錄以確認中獎資格。</div>
+    </div>
+
+    <div id="main-display">
+        <div id="current-ball">?</div>
+        <div id="history-grid">
+        </div>
+    </div>
+
+    <div id="settings-panel">
+        <h2>遊戲設定</h2>
+        <div class="control-group">
+            <label>號碼範圍 (1 - Max)</label>
+            <input type="number" id="max-num" value="75">
+        </div>
+        <div class="control-group">
+            <label>每球展示時間 (秒)</label>
+            <input type="number" id="interval" value="3" step="0.5">
+        </div>
+        <button id="start-btn" onclick="startGame()">開始抽號</button>
+        <button id="reset-btn" onclick="resetGame()" style="margin-top:10px; background:#747d8c;">重設遊戲</button>
+
+        <div style="margin-top: 30px; color: #666; font-size: 0.8rem;">
+            剩餘號碼：<span id="remaining-count">0</span>
+        </div>
+    </div>
+
+    <script>
+        let numbers = [];
+        let drawnNumbers = [];
+        let timer = null;
+
+        function resetGame() {
+            clearInterval(timer);
+            const max = parseInt(document.getElementById('max-num').value);
+            numbers = Array.from({ length: max }, (_, i) => i + 1);
+            drawnNumbers = [];
+            document.getElementById('current-ball').innerText = '?';
+            document.getElementById('start-btn').disabled = false;
+            document.getElementById('remaining-count').innerText = max;
+
+            // 初始化歷史網格
+            const grid = document.getElementById('history-grid');
+            grid.innerHTML = '';
+            for (let i = 1; i <= max; i++) {
+                const div = document.createElement('div');
+                div.className = 'history-ball';
+                div.id = 'ball-' + i;
+                div.innerText = i;
+                grid.appendChild(div);
+            }
+        }
+
+        function drawBall() {
+            if (numbers.length === 0) {
+                clearInterval(timer);
+                alert("所有號碼已抽完！");
+                return;
+            }
+
+            const idx = Math.floor(Math.random() * numbers.length);
+            const num = numbers.splice(idx, 1)[0];
+            drawnNumbers.push(num);
+
+            // 更新展示
+            const display = document.getElementById('current-ball');
+            display.innerText = num;
+            display.style.transform = "scale(1.1)";
+            setTimeout(() => display.style.transform = "scale(1)", 200);
+
+            // 更新歷史
+            const histBall = document.getElementById('ball-' + num);
+            if (histBall) histBall.classList.add('active');
+
+            document.getElementById('remaining-count').innerText = numbers.length;
+        }
+
+        function startGame() {
+            const interval = parseFloat(document.getElementById('interval').value) * 1000;
+            document.getElementById('start-btn').disabled = true;
+
+            if (numbers.length === 0) resetGame();
+
+            drawBall(); // 立即抽第一顆
+            timer = setInterval(drawBall, interval);
+        }
+
+        // 初始載入
+        window.onload = resetGame;
+    </script>
+</body>
+
+</html>
