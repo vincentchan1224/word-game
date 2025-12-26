@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>互動 Bingo 抽獎系統 - 增強版</title>
+    <title>互動 Bingo 抽獎系統 - 完美顯示版</title>
     <style>
         :root {
             --primary-color: #ff4757;
@@ -14,22 +14,26 @@
             --bg-color: #f1f2f6;
         }
 
+        /* 基礎布局：禁止 body 滾動，改用 flex 撐滿 */
         body {
             font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
             background-color: var(--bg-color);
             margin: 0;
             display: flex;
             height: 100vh;
+            width: 100vw;
             overflow: hidden;
         }
 
         /* 左側：玩法說明 */
         #sidebar {
             width: 250px;
+            min-width: 250px;
             background-color: var(--secondary-color);
             color: white;
             padding: 25px;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+            z-index: 10;
         }
 
         #sidebar h2 {
@@ -51,44 +55,59 @@
             display: flex;
             flex-direction: column;
             padding: 20px;
-            align-items: center;
+            box-sizing: border-box;
+            overflow: hidden;
+            /* 防止中間區塊撐破 */
+        }
+
+        #current-ball-container {
+            flex: 0 0 auto;
+            /* 固定高度區域 */
+            display: flex;
             justify-content: center;
+            align-items: center;
+            padding: 20px 0;
         }
 
         #current-ball {
-            width: 220px;
-            height: 220px;
+            width: 180px;
+            height: 180px;
             background: radial-gradient(circle at 30% 30%, #ff6b81, #ff4757);
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 90px;
+            font-size: 80px;
             color: white;
             font-weight: bold;
-            box-shadow: 0 15px 30px rgba(255, 71, 87, 0.4);
-            margin-bottom: 40px;
+            box-shadow: 0 10px 25px rgba(255, 71, 87, 0.4);
             border: 8px solid white;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* 歷史記錄區：這是修復「看不到最後一排」的關鍵 */
+        #history-section {
+            flex: 1;
+            /* 佔用剩餘的所有空間 */
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+            overflow-y: auto;
+            /* 超出時出現內部滾動條 */
+            display: flex;
+            flex-direction: column;
         }
 
         #history-grid {
             display: grid;
-            grid-template-columns: repeat(10, 1fr);
-            gap: 8px;
+            grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+            gap: 10px;
             width: 100%;
-            max-width: 800px;
-            background: rgba(255, 255, 255, 0.8);
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            max-height: 40vh;
-            overflow-y: auto;
         }
 
         .history-ball {
-            width: 45px;
-            height: 45px;
+            aspect-ratio: 1;
             background: #dfe4ea;
             border-radius: 50%;
             display: flex;
@@ -97,23 +116,26 @@
             font-weight: bold;
             color: #a4b0be;
             font-size: 1.1rem;
+            transition: all 0.3s;
         }
 
         .history-ball.active {
             background: var(--accent-color);
             color: white;
-            transform: scale(1.1);
+            transform: scale(1.05);
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
         /* 右側：設定面板 */
         #settings-panel {
-            width: 300px;
+            width: 280px;
+            min-width: 280px;
             background: white;
             padding: 25px;
             border-left: 1px solid #ddd;
             display: flex;
             flex-direction: column;
+            box-sizing: border-box;
         }
 
         .control-group {
@@ -129,16 +151,17 @@
 
         input {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border: 1px solid #ced4da;
             border-radius: 6px;
             box-sizing: border-box;
+            font-size: 1rem;
         }
 
         .btn-stack {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
         }
 
         button {
@@ -168,21 +191,27 @@
             color: white;
         }
 
-        button:active {
-            transform: scale(0.98);
-        }
-
-        button:disabled {
-            background: #ccc !important;
-            cursor: not-allowed;
-        }
-
         .status-badge {
             margin-top: auto;
-            padding: 15px;
+            padding: 20px;
             background: #f8f9fa;
-            border-radius: 8px;
+            border-radius: 12px;
             text-align: center;
+            border: 1px solid #eee;
+        }
+
+        /* 滾動條美化 */
+        #history-section::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #history-section::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        #history-section::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 4px;
         }
     </style>
 </head>
@@ -192,39 +221,46 @@
     <div id="sidebar">
         <h2>遊戲規則</h2>
         <div class="rule-item"><b>1. 準備：</b>確保每位玩家手上有對應範圍的 Bingo 卡片。</div>
-        <div class="rule-item"><b>2. 聽號：</b>系統會自動抽取號碼，請注意中間的大球。</div>
-        <div class="rule-item"><b>3. 暫停：</b>若有人喊 Bingo，主持人可按「暫停」核對號碼。</div>
-        <div class="rule-item"><b>4. 獲勝：</b>最快完成任一連線（橫/直/斜）即為贏家！</div>
+        <div class="rule-item"><b>2. 聽號：</b>注意中間的大球，系統會自動抽取。</div>
+        <div class="rule-item"><b>3. 暫停：</b>有人喊 Bingo 時，請按「暫停」核對。</div>
+        <div class="rule-item"><b>4. 獲勝：</b>完成任一連線（橫/直/斜）即中獎！</div>
     </div>
 
     <div id="main-display">
-        <div id="current-ball">?</div>
-        <div id="history-grid"></div>
+        <div id="current-ball-container">
+            <div id="current-ball">?</div>
+        </div>
+
+        <div id="history-section">
+            <div style="margin-bottom: 15px; font-weight: bold; color: #747d8c;">已抽出的號碼記錄：</div>
+            <div id="history-grid"></div>
+        </div>
     </div>
 
     <div id="settings-panel">
         <h2>控制面板</h2>
 
         <div class="control-group">
-            <label>最大號碼範圍</label>
-            <input type="number" id="max-num" value="75" min="1" max="200">
+            <label>最大號碼 (1 - Max)</label>
+            <input type="number" id="max-num" value="75" min="1" max="100">
         </div>
 
         <div class="control-group">
-            <label>每球間隔時間 (秒)</label>
+            <label>每球間隔 (秒)</label>
             <input type="number" id="interval" value="3" min="0.5" step="0.5">
         </div>
 
         <div class="btn-stack">
-            <button id="start-btn" onclick="startGame()">開始遊戲</button>
-            <button id="pause-btn" onclick="togglePause()">暫停</button>
-            <button id="reset-btn" onclick="resetGame()">重設/清空</button>
+            <button id="start-btn" onclick="startGame()">開始抽號</button>
+            <button id="pause-btn" onclick="togglePause()">暫停遊戲</button>
+            <button id="reset-btn" onclick="resetGame()">重設清空</button>
         </div>
 
         <div class="status-badge">
-            <div style="font-size: 0.9rem; color: #666;">已抽 / 總數</div>
-            <div style="font-size: 1.5rem; font-weight: bold; color: var(--secondary-color);">
-                <span id="drawn-count">0</span> / <span id="total-count">75</span>
+            <div style="font-size: 0.9rem; color: #666; margin-bottom: 5px;">抽球進度</div>
+            <div style="font-size: 1.8rem; font-weight: bold; color: var(--secondary-color);">
+                <span id="drawn-count">0</span> <small style="font-size: 1rem; color: #999;">/</small> <span
+                    id="total-count">75</span>
             </div>
         </div>
     </div>
@@ -242,17 +278,16 @@
             const max = parseInt(document.getElementById('max-num').value) || 75;
             numbers = Array.from({ length: max }, (_, i) => i + 1);
 
+            // 重置 UI
             document.getElementById('current-ball').innerText = '?';
-            document.getElementById('current-ball').style.background = 'radial-gradient(circle at 30% 30%, #ff6b81, #ff4757)';
-
             document.getElementById('start-btn').style.display = 'block';
             document.getElementById('pause-btn').style.display = 'none';
-            document.getElementById('pause-btn').innerText = '暫停';
+            document.getElementById('pause-btn').innerText = '暫停遊戲';
+            document.getElementById('pause-btn').style.backgroundColor = 'var(--accent-color)';
 
             document.getElementById('total-count').innerText = max;
             document.getElementById('drawn-count').innerText = 0;
 
-            // 重新生成歷史格線
             const grid = document.getElementById('history-grid');
             grid.innerHTML = '';
             for (let i = 1; i <= max; i++) {
@@ -270,7 +305,7 @@
             if (numbers.length === 0) {
                 clearInterval(timer);
                 timer = null;
-                alert("號碼已全部抽完！");
+                alert("🎉 恭喜！號碼已全部抽完！");
                 document.getElementById('pause-btn').style.display = 'none';
                 return;
             }
@@ -278,19 +313,20 @@
             const idx = Math.floor(Math.random() * numbers.length);
             const num = numbers.splice(idx, 1)[0];
 
-            // 更新展示球
             const display = document.getElementById('current-ball');
             display.innerText = num;
 
-            // 動效
+            // 彈跳動畫
             display.style.transform = "scale(1.2)";
             setTimeout(() => display.style.transform = "scale(1)", 200);
 
-            // 更新歷史記錄
             const histBall = document.getElementById('ball-' + num);
-            if (histBall) histBall.classList.add('active');
+            if (histBall) {
+                histBall.classList.add('active');
+                // 自動滾動到最新抽出的球 (可選)
+                histBall.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
 
-            // 更新計數
             const max = document.getElementById('max-num').value;
             document.getElementById('drawn-count').innerText = max - numbers.length;
         }
@@ -315,12 +351,11 @@
                 btn.style.backgroundColor = 'var(--success-color)';
             } else {
                 isPaused = false;
-                btn.innerText = '暫停';
+                btn.innerText = '暫停遊戲';
                 btn.style.backgroundColor = 'var(--accent-color)';
             }
         }
 
-        // 初始化
         window.onload = resetGame;
     </script>
 </body>
